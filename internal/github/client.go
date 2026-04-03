@@ -1,8 +1,10 @@
 package github
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -123,6 +125,103 @@ func (c *Client) checkRateLimit(resp *http.Response) error {
 		return fmt.Errorf("github: rate limit exhausted; resets at %s", info.ResetAt.Format(time.RFC3339))
 	}
 	return nil
+}
+
+// FetchReadme fetches the full raw README content for owner/repo via the
+// GitHub API.
+func (c *Client) FetchReadme(owner, repo string) string {
+	rawURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/readme",
+		url.PathEscape(owner), url.PathEscape(repo))
+
+	req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+	if err != nil {
+		return ""
+	}
+	req.Header.Set("Accept", "application/vnd.github.v3.raw")
+	if c.token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.token)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		if resp != nil {
+			resp.Body.Close()
+		}
+		return ""
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
+// FetchReadmeFirstParagraph fetches the README for owner/repo via the GitHub
+// API and returns the first non-heading, non-empty paragraph of text.
+func (c *Client) FetchReadmeFirstParagraph(owner, repo string) string {
+	rawURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/readme",
+		url.PathEscape(owner), url.PathEscape(repo))
+
+	req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+	if err != nil {
+		return ""
+	}
+	// Request raw content directly to avoid base64 decoding.
+	req.Header.Set("Accept", "application/vnd.github.v3.raw")
+	if c.token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.token)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		if resp != nil {
+			resp.Body.Close()
+		}
+		return ""
+	}
+	defer resp.Body.Close()
+
+	return extractFirstParagraph(resp.Body)
+}
+
+// extractFirstParagraph reads markdown content and returns the first
+// non-heading, non-empty paragraph of plain text.
+func extractFirstParagraph(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
+	var lines []string
+	inParagraph := false
+	for scanner.Scan() {
+		line := scanner.Text()
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "#") || strings.HasPrefix(trimmed, "---") || strings.HasPrefix(trimmed, "===") {
+			if inParagraph {
+				break
+			}
+			continue
+		}
+		// Skip badges, images, HTML tags
+		if strings.HasPrefix(trimmed, "![") || strings.HasPrefix(trimmed, "<") || strings.HasPrefix(trimmed, "[![") {
+			if inParagraph {
+				break
+			}
+			continue
+		}
+		if trimmed == "" {
+			if inParagraph {
+				break
+			}
+			continue
+		}
+		inParagraph = true
+		lines = append(lines, trimmed)
+	}
+	result := strings.Join(lines, " ")
+	if len(result) > 120 {
+		result = result[:117] + "..."
+	}
+	return result
 }
 
 // BuildAuthCloneURL converts a plain HTTPS HTML URL such as

@@ -8,6 +8,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/reubenb/project-patterns/internal/config"
+	gh "github.com/reubenb/project-patterns/internal/github"
 	"github.com/reubenb/project-patterns/internal/project"
 	"github.com/spf13/cobra"
 )
@@ -54,6 +55,23 @@ func runRepo(cmd *cobra.Command, args []string) error {
 
 	tags, _ := cmd.Flags().GetStringSlice("tags")
 	desc, _ := cmd.Flags().GetString("desc")
+
+	// Fetch description from README if not provided.
+	if desc == "" {
+		parts := strings.Split(strings.Trim(parsed.Path, "/"), "/")
+		if len(parts) >= 2 {
+			owner := parts[0]
+			repo := strings.TrimSuffix(parts[1], ".git")
+			cfgPath, _ := cmd.Root().PersistentFlags().GetString("config")
+			cfg, err := config.Load(cfgPath)
+			token := ""
+			if err == nil {
+				token = cfg.GitHubToken
+			}
+			client := gh.NewClient(token)
+			desc = client.FetchReadmeFirstParagraph(owner, repo)
+		}
+	}
 
 	id := project.GenerateID(name)
 
