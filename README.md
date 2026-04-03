@@ -22,7 +22,7 @@ go build -o project-patterns .
 # Add a local project
 project-patterns add local ~/projects/my-app --tags backend,go --desc "REST API with caching"
 
-# Add a remote repository
+# Add a remote repository (description auto-fetched from README)
 project-patterns add repo https://github.com/user/repo --tags frontend,react
 
 # Bulk-add all repos for a GitHub user
@@ -36,6 +36,13 @@ project-patterns search --tags frontend,elixir
 
 # Search with text query
 project-patterns search --query "data caching" --json
+
+# Search with full README output
+project-patterns search --tags elixir -v
+
+# Search and clone matched projects locally
+project-patterns search --tags elixir --clone
+project-patterns search --tags elixir --clone-dir ~/my-refs
 
 # List everything
 project-patterns list --markdown
@@ -95,6 +102,22 @@ Search and list support three output formats:
 - **Table** (default): Clean ASCII table via go-pretty
 - **JSON** (`--json`): Machine-readable, ideal for piping into AI tools
 - **Markdown** (`--markdown`): Pipe-delimited table for pasting into prompts
+
+Add `-v`/`--verbose` to any format to include the full README for each project (fetched from disk or GitHub API).
+
+## Cloning on Search
+
+Use `--clone` or `--clone-dir <path>` with `search` or `list` to clone all matched git projects:
+
+```bash
+# Clone to default cache paths
+project-patterns search --tags backend --clone
+
+# Clone into a specific directory
+project-patterns search --tags backend --clone-dir ~/refs
+```
+
+Already-cloned repos are pulled instead. The path column updates to show the local directory.
 
 ## Shell Completion
 
