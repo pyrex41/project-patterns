@@ -5,13 +5,13 @@ A CLI tool for maintaining a personal index of reference projects — Git reposi
 ## Installation
 
 ```bash
-go install github.com/reubenb/project-patterns@latest
+go install github.com/pyrex41/project-patterns@latest
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/reubenb/project-patterns.git
+git clone https://github.com/pyrex41/project-patterns.git
 cd project-patterns
 go build -o project-patterns .
 ```
