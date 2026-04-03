@@ -1,0 +1,139 @@
+# SCUD Graph v1
+# Phase: init
+
+@meta {
+  name init
+  updated 2026-04-03T17:00:00Z
+}
+
+@nodes
+# id | title | status | complexity | priority
+1 | Initialize Go module and project structure | P | 2 | H
+2 | Implement configuration handling with Viper | P | 3 | H
+3 | Define project model and data structures | P | 2 | H
+4 | Set up Cobra CLI framework and root command | P | 3 | H
+5 | Implement GitHub API client for user repositories | X | 5 | H
+5.1 | Define GitHub Repository Models | P | 0 | H
+5.2 | Implement GitHub API Client | P | 0 | H
+6 | Implement git operations for cloning and syncing | X | 5 | H
+6.1 | Implement git clone functionality | P | 0 | H
+6.2 | Implement git sync functionality | P | 0 | H
+7 | Implement add subcommands (local, repo, github-user, dir) | X | 8 | H
+7.1 | Define config schema and core add logic | P | 0 | H
+7.2 | Implement add subcommands | P | 0 | H
+8 | Implement search and list commands with table output | P | 5 | H
+8.1 | Implement core search and list logic | P | 0 | H
+8.2 | Add table rendering and output formats | P | 0 | H
+9 | Implement sync and showboat commands | X | 5 | H
+9.1 | Implement sync command | P | 0 | H
+9.2 | Implement showboat command | P | 0 | H
+10 | Implement config and version commands, add colored output and README | P | 3 | M
+
+@edges
+# dependent -> dependency
+2 -> 1
+3 -> 1
+4 -> 1
+4 -> 2
+5 -> 1
+5 -> 2
+5.2 -> 5.1
+6 -> 1
+6 -> 2
+6 -> 3
+6.2 -> 6.1
+7 -> 2
+7 -> 3
+7 -> 4
+7 -> 5
+7 -> 6
+7.1 -> 2
+7.1 -> 3
+7.2 -> 7.1
+8 -> 2
+8 -> 3
+8 -> 4
+8.2 -> 8.1
+9 -> 2
+9 -> 3
+9 -> 4
+9 -> 6
+9.1 -> 6
+10 -> 2
+10 -> 4
+10 -> 7
+10 -> 8
+10 -> 9
+
+@parents
+# parent: child1, child2
+5: 5.1, 5.2
+6: 6.1, 6.2
+7: 7.1, 7.2
+8: 8.1, 8.2
+9: 9.1, 9.2
+
+@agents
+# id | agent_type | model_tier
+1 | fast-builder | fast
+2 | builder | standard
+3 | fast-builder | fast
+4 | builder | standard
+5 | builder | standard
+5.1 | builder | standard
+5.2 | builder | standard
+6 | builder | standard
+6.1 | builder | standard
+6.2 | builder | standard
+7 | builder | smart
+7.1 | builder | smart
+7.2 | builder | smart
+8 | builder | standard
+8.1 | builder | standard
+8.2 | builder | standard
+9 | builder | standard
+9.1 | builder | standard
+9.2 | builder | standard
+10 | builder | standard
+
+@details
+1 | description |
+  Create the go.mod file with Go 1.23+ and set up the basic directory structure including cmd/, internal/config/, internal/project/, internal/github/, and main.go.
+2 | description |
+  Create internal/config/config.go to handle loading and writing YAML config at ~/.config/project-patterns/config.yaml, including global settings like cache_dir, github_token, and showboat_path, with safe read/write and backups.
+3 | description |
+  Implement internal/project/project.go with the Project struct matching the specified YAML model, including methods for validation, description derivation, and YAML serialization.
+4 | description |
+  Initialize Cobra in main.go and cmd/root.go, define the root command with persistent flags, and prepare subcommand structure for add, search, sync, showboat, list, config, and version.
+5 | description |
+  Create internal/github/client.go with HTTP client to fetch user repos via GitHub API, handling pagination, rate limits, private repos with token, and error handling for authentication and network issues.
+5.1 | description |
+  Create Go structs in internal/github/models.go to represent GitHub repository data, including fields like ID, name, full_name, private, html_url, description, and any other relevant attributes from the GitHub API response.
+5.2 | description |
+  Implement the HTTP client in internal/github/client.go with methods to fetch user repositories, handling pagination, rate limiting, authentication via token for private repos, and error handling for network issues and authentication failures.
+6 | description |
+  Add git clone/sync functionality using os/exec, supporting HTTPS URLs with embedded tokens for private repos, cloning to cache_dir/clones, and updating last_synced timestamps.
+6.1 | description |
+  Add functionality to clone git repositories using os/exec, supporting HTTPS URLs with embedded tokens for private repositories, and cloning to cache_dir/clones directory.
+6.2 | description |
+  Add functionality to sync (pull) existing cloned repositories and update last_synced timestamps after successful operations.
+7 | description |
+  Create cmd/add/ subcommands for adding local paths, git repos, GitHub users (bulk add repos), and directories, with auto-description derivation, tag parsing, and idempotent updates to config.
+7.1 | description |
+  Create the configuration data structures, schema for storing added items (local paths, repos, etc.), and implement the core idempotent update logic for adding items to config with auto-description derivation and tag parsing.
+7.2 | description |
+  Create the cmd/add/ subcommands for local, repo, github-user, and dir, each handling their specific input types and integrating with the core add logic.
+8 | description |
+  Build cmd/search.go and cmd/list.go (alias) with tag-based AND filtering, text query search on name/description (substring match), table rendering using go-pretty, and --json/--markdown flags for output formats. No extra deps for search.
+8.1 | description |
+  Create cmd/search.go and cmd/list.go (as an alias) with command-line parsing, tag-based AND filtering, and simple substring search on name/description.
+8.2 | description |
+  Integrate go-pretty for table rendering in the search/list commands, and implement --json and --markdown flags for alternative output formats.
+9 | description |
+  Create cmd/sync.go to pull/clone all git projects, and cmd/showboat.go to execute external showboat binary on project local paths with configurable invocation and error handling for missing binary.
+9.1 | description |
+  Create cmd/sync.go to pull/clone all git projects.
+9.2 | description |
+  Create cmd/showboat.go to execute external showboat binary on project local paths with configurable invocation and error handling for missing binary.
+10 | description |
+  Add cmd/config.go for showing/editing config, cmd/version.go, integrate fatih/color for CLI output, write comprehensive README.md with usage examples and config template, and ensure all commands have detailed help text.
