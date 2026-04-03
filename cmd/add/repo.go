@@ -29,9 +29,10 @@ func init() {
 }
 
 func runRepo(cmd *cobra.Command, args []string) error {
-	rawURL := args[0]
+	return runRepoWith(cmd, args[0])
+}
 
-	// Parse and validate the URL.
+func runRepoWith(cmd *cobra.Command, rawURL string) error {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
 		return fmt.Errorf("invalid URL %q: %w", rawURL, err)
@@ -40,12 +41,10 @@ func runRepo(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("invalid URL %q: must be an absolute URL (e.g. https://github.com/user/repo)", rawURL)
 	}
 
-	// Derive the repo name from the URL path (last segment, strip .git).
 	urlPath := parsed.Path
 	repoName := path.Base(urlPath)
 	repoName = strings.TrimSuffix(repoName, ".git")
 
-	// Derive owner/repo slug for the clone path (last two path segments).
 	slug := ownerRepoSlug(urlPath)
 
 	name, _ := cmd.Flags().GetString("name")
@@ -56,16 +55,16 @@ func runRepo(cmd *cobra.Command, args []string) error {
 	tags, _ := cmd.Flags().GetStringSlice("tags")
 	desc, _ := cmd.Flags().GetString("desc")
 
-	// Fetch description from README if not provided.
-	if desc == "" {
+	// Fetch description from README if not provided (GitHub only).
+	if desc == "" && strings.Contains(parsed.Host, "github.com") {
 		parts := strings.Split(strings.Trim(parsed.Path, "/"), "/")
 		if len(parts) >= 2 {
 			owner := parts[0]
 			repo := strings.TrimSuffix(parts[1], ".git")
 			cfgPath, _ := cmd.Root().PersistentFlags().GetString("config")
-			cfg, err := config.Load(cfgPath)
+			cfg, loadErr := config.Load(cfgPath)
 			token := ""
-			if err == nil {
+			if loadErr == nil {
 				token = cfg.GitHubToken
 			}
 			client := gh.NewClient(token)
@@ -113,11 +112,8 @@ func runRepo(cmd *cobra.Command, args []string) error {
 }
 
 // ownerRepoSlug returns an "owner-repo" style slug derived from the URL path.
-// For "/user/repo" or "/user/repo.git" it returns "user-repo".
 func ownerRepoSlug(urlPath string) string {
-	// Strip leading/trailing slashes and .git suffix.
 	p := strings.Trim(urlPath, "/")
 	p = strings.TrimSuffix(p, ".git")
-	// Replace path separators with hyphens.
 	return strings.ReplaceAll(p, "/", "-")
 }

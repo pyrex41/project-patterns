@@ -28,15 +28,15 @@ func init() {
 }
 
 func runLocal(cmd *cobra.Command, args []string) error {
-	dirArg := args[0]
+	return runLocalWith(cmd, args[0])
+}
 
-	// Resolve to absolute path.
+func runLocalWith(cmd *cobra.Command, dirArg string) error {
 	absPath, err := filepath.Abs(dirArg)
 	if err != nil {
 		return fmt.Errorf("resolving path: %w", err)
 	}
 
-	// Validate the path exists and is a directory.
 	info, err := os.Stat(absPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -48,7 +48,6 @@ func runLocal(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("path is not a directory: %s", absPath)
 	}
 
-	// Determine name.
 	name, _ := cmd.Flags().GetString("name")
 	if name == "" {
 		name = filepath.Base(absPath)
@@ -57,7 +56,6 @@ func runLocal(cmd *cobra.Command, args []string) error {
 	tags, _ := cmd.Flags().GetStringSlice("tags")
 	desc, _ := cmd.Flags().GetString("desc")
 
-	// Try to read description from README if not provided.
 	if desc == "" {
 		desc = readReadmeFirstParagraph(absPath)
 	}
@@ -115,7 +113,6 @@ func readReadmeFirstParagraph(dir string) string {
 		inParagraph := false
 		for scanner.Scan() {
 			line := scanner.Text()
-			// Skip Markdown headings and horizontal rules.
 			trimmed := strings.TrimSpace(line)
 			if strings.HasPrefix(trimmed, "#") || strings.HasPrefix(trimmed, "---") || strings.HasPrefix(trimmed, "===") {
 				if inParagraph {

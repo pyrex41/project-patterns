@@ -2,6 +2,7 @@ package add
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/fatih/color"
@@ -25,7 +26,18 @@ func init() {
 }
 
 func runGitHubUser(cmd *cobra.Command, args []string) error {
-	username := args[0]
+	return runGitHubUserWith(cmd, args[0])
+}
+
+func runGitHubUserWith(cmd *cobra.Command, input string) error {
+	// input may be a full URL like https://github.com/user — extract the username.
+	username := input
+	if strings.HasPrefix(input, "https://") || strings.HasPrefix(input, "http://") {
+		u, err := url.Parse(input)
+		if err == nil {
+			username = strings.Trim(u.Path, "/")
+		}
+	}
 
 	includePrivate, _ := cmd.Flags().GetBool("include-private")
 	defaultTags, _ := cmd.Flags().GetStringSlice("tags")
@@ -47,17 +59,13 @@ func runGitHubUser(cmd *cobra.Command, args []string) error {
 	updated := 0
 
 	for _, repo := range repos {
-		// Skip forks and archived repos.
 		if repo.Fork || repo.Archived {
 			continue
 		}
 
-		// Build tags: repo topics + any default tags provided.
 		tags := make([]string, 0, len(repo.Topics)+len(defaultTags))
 		tags = append(tags, repo.Topics...)
 		tags = append(tags, defaultTags...)
-
-		// Deduplicate tags.
 		tags = uniqueStrings(tags)
 
 		id := project.GenerateID(repo.Name)
@@ -75,7 +83,6 @@ func runGitHubUser(cmd *cobra.Command, args []string) error {
 		}
 
 		if err := p.Validate(); err != nil {
-			// Log and skip invalid entries rather than aborting the whole import.
 			fmt.Fprintf(cmd.ErrOrStderr(), "skipping %s: %v\n", repo.FullName, err)
 			continue
 		}
@@ -92,7 +99,7 @@ func runGitHubUser(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("saving config: %w", err)
 	}
 
-	color.Green("Added %d projects, updated %d projects from github.com/%s", added, updated, username)
+	color.Green("Added %d projects, updated %d projects from %s", added, updated, username)
 	return nil
 }
 

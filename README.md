@@ -19,17 +19,23 @@ go build -o project-patterns .
 ## Quick Start
 
 ```bash
-# Add a local project
-project-patterns add local ~/projects/my-app --tags backend,go --desc "REST API with caching"
+# Add a local project (auto-detected from path)
+project-patterns add ~/projects/my-app --tags backend,go --desc "REST API with caching"
 
-# Add a remote repository (description auto-fetched from README)
-project-patterns add repo https://github.com/user/repo --tags frontend,react
+# Add a remote repository (auto-detected from URL, description fetched from README)
+project-patterns add github.com/user/repo --tags frontend,react
+project-patterns add gitlab.com/org/project --tags work
 
-# Bulk-add all repos for a GitHub user
-project-patterns add github-user myusername --tags personal
+# Bulk-add all repos for a GitHub user (auto-detected: host/user with no repo)
+project-patterns add github.com/myusername --tags personal
 
 # Add all projects in a directory
 project-patterns add dir ~/projects --tags work
+
+# Subcommands still work explicitly
+project-patterns add local ~/projects/my-app --tags go
+project-patterns add repo https://github.com/user/repo --tags react
+project-patterns add github-user myusername --tags personal
 
 # Search by tags
 project-patterns search --tags frontend,elixir
@@ -58,6 +64,7 @@ project-patterns showboat my-project
 
 | Command | Description |
 |---------|-------------|
+| `add <path-or-url>` | Auto-detect and add a local path, repo URL, or user |
 | `add local <path>` | Add a local directory as a project |
 | `add repo <url>` | Add a remote git repository |
 | `add github-user <username>` | Bulk-add repos for a GitHub user |
