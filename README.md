@@ -8,12 +8,19 @@ A CLI tool for maintaining a personal index of reference projects — Git reposi
 go install github.com/pyrex41/project-patterns@latest
 ```
 
+Then run setup to install the `pp` alias and shell completions:
+
+```bash
+project-patterns setup
+```
+
 Or build from source:
 
 ```bash
 git clone https://github.com/pyrex41/project-patterns.git
 cd project-patterns
 go build -o project-patterns .
+./project-patterns setup
 ```
 
 ## Quick Start
@@ -73,6 +80,7 @@ project-patterns showboat my-project
 | `list` | List all indexed projects |
 | `sync` | Clone or pull all git projects |
 | `showboat <id>` | Run showboat on a project |
+| `setup` | Install pp alias and shell completions |
 | `config show` | Display current configuration |
 | `config edit` | Open config in $EDITOR |
 | `version` | Print version information |
@@ -126,17 +134,23 @@ project-patterns search --tags backend --clone-dir ~/refs
 
 Already-cloned repos are pulled instead. The path column updates to show the local directory.
 
-## Shell Completion
+## Shell Setup
+
+`project-patterns setup` auto-detects your shell (fish/zsh/bash) and installs:
+- The `pp` alias
+- Shell completions for both `project-patterns` and `pp`
 
 ```bash
-# Bash
-project-patterns completion bash > /etc/bash_completion.d/project-patterns
+project-patterns setup              # install alias + completions
+project-patterns setup --no-alias   # completions only, no pp alias
+```
 
-# Zsh
-project-patterns completion zsh > "${fpath[1]}/_project-patterns"
+Or install completions manually:
 
-# Fish
+```bash
 project-patterns completion fish > ~/.config/fish/completions/project-patterns.fish
+project-patterns completion zsh > "${fpath[1]}/_project-patterns"
+project-patterns completion bash > /etc/bash_completion.d/project-patterns
 ```
 
 ## How This Was Built
