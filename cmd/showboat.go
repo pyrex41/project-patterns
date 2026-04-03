@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/fatih/color"
-	"github.com/reubenb/project-patterns/internal/config"
+	"github.com/pyrex41/project-patterns/internal/config"
 	"github.com/spf13/cobra"
 )
 

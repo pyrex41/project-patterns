@@ -1,4 +1,4 @@
-module github.com/reubenb/project-patterns
+module github.com/pyrex41/project-patterns
 
 go 1.25.0
 

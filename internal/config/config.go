@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/reubenb/project-patterns/internal/project"
+	"github.com/pyrex41/project-patterns/internal/project"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )

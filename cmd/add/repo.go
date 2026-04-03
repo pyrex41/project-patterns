@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/reubenb/project-patterns/internal/config"
-	gh "github.com/reubenb/project-patterns/internal/github"
-	"github.com/reubenb/project-patterns/internal/project"
+	"github.com/pyrex41/project-patterns/internal/config"
+	gh "github.com/pyrex41/project-patterns/internal/github"
+	"github.com/pyrex41/project-patterns/internal/project"
 	"github.com/spf13/cobra"
 )
 

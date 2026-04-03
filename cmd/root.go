@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/reubenb/project-patterns/cmd/add"
-	"github.com/reubenb/project-patterns/internal/config"
+	"github.com/pyrex41/project-patterns/cmd/add"
+	"github.com/pyrex41/project-patterns/internal/config"
 	"github.com/spf13/cobra"
 )
 

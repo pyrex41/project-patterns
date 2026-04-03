@@ -11,10 +11,10 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/reubenb/project-patterns/internal/config"
-	"github.com/reubenb/project-patterns/internal/git"
-	gh "github.com/reubenb/project-patterns/internal/github"
-	"github.com/reubenb/project-patterns/internal/project"
+	"github.com/pyrex41/project-patterns/internal/config"
+	"github.com/pyrex41/project-patterns/internal/git"
+	gh "github.com/pyrex41/project-patterns/internal/github"
+	"github.com/pyrex41/project-patterns/internal/project"
 	"github.com/spf13/cobra"
 )
 

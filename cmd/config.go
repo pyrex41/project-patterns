@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/reubenb/project-patterns/internal/config"
+	"github.com/pyrex41/project-patterns/internal/config"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
